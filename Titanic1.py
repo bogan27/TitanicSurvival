@@ -18,7 +18,7 @@ from DataQualityTool import DataQualityTool
 class TitanicSurivalModel:
     ## Initialize the model
     def __init__(self):
-        os.chdir("/Users/brandonbogan/Desktop/DataScience/Python /Titanic/Data")
+        os.chdir("Data")
         self.train = pd.read_csv("train.csv", index_col= 0)
         self.test = pd.read_csv("train.csv", index_col= 0)
         self.dqTool = DataQualityTool(self.train)
@@ -98,29 +98,36 @@ class TitanicSurivalModel:
    #Calculating Fare per person using Family Size
    ##acts fare per person to data and returns data
     def farePerPerson(self, data):
-       data["Fare_Per_Person"]=data["Fare"]/(data["Family_Size"]+1)
+       data["Fare_Per_Person"]=data["Fare"]/(data["FamilySize"]+1)
        return data
    
    #Turning cabin number into Deck
    #adds deck as feature and then returns data
     def cabintoDeck(self,data):
         cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
-        data['Deck']=data['Cabin'].map(lambda x: self.substrings_in_string(x, cabin_list))
+        data['Deck']=data['Cabin'].map(lambda x: self.substrings_in_string(str(x), cabin_list))
         return data
 
-    ##gets Correlation Matrix and returns of all columns
+    ## Gets Correlation Matrix and returns of all columns
     def getCorr(self,data):
         corrMatrix = data.corr()
         return corrMatrix
-        
+    
+    ## Adds family size, fare per family member, deck, and title to the given
+    ## data set, then returns it    
     def addFeatures(self,data):
         data = self.calcFamilySize(data)
         data = self.farePerPerson(data)
         data = self.cabintoDeck(data)
         data = self.calcTitles(data)
         return data
-       
-        
+    
+    
+    ## Removes Fare, Cabin, Name, and Ticket from the given data set, then 
+    ## returns the dataset. These variables are removed because they are either 
+    ## arbitrary strings, or represented in other variables. 
+    def deleteFeatures(self, data):
+        return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1)
           
 ################################################################################          
  ##############################Modelling#######################################         
