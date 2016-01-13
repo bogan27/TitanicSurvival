@@ -94,8 +94,19 @@ class TitanicSurivalModel:
     def calcFamilySize(self, data):
         data["FamilySize"] = data["SibSp"] + data["Parch"] + 1
         return data
-          
-          
+   
+   #Calculating Fare per person using Family Size
+   ##acts fare per person to data and returns data
+    def farePerPerson(self, data):
+       data["Fare_Per_Person"]=data["Fare"]/(data["Family_Size"]+1)
+       return data
+   
+   #Turning cabin number into Deck
+   #adds deck as feature and then returns data
+    def cabintoClass(self,data):
+        cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
+        data['Deck']=data['Cabin'].map(lambda x: self.substrings_in_string(x, cabin_list))
+        return data
           
 class Passenger:
     ## Initialize a passenger
