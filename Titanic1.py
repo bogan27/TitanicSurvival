@@ -11,8 +11,11 @@ import sys
 import pylab as P
 import string
 import numpy as np
+import matplotlib.pyplot as plt
 sys.path.append("..")
 from DataQualityTool import DataQualityTool
+from sklearn.feature_selection import SelectKBest, f_classif
+
 
 
 class TitanicSurivalModel:
@@ -130,10 +133,29 @@ class TitanicSurivalModel:
     ## arbitrary strings, or represented in other variables. 
     def deleteFeatures(self, data):
         return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1)
+        
+    #Create dummy variables for strings that need to me turned into
+    #Nominal variables could also have C(varibale) to tell Python categorical
+    #Return data
+    def nominaltoDummy(self, data):
+        Nominal  = self.getNameOfNoms(data)
+        return Nominal
           
 ################################################################################          
  ##############################Modelling#######################################         
-          
+
+    #Looking at Feature Importance using Entropy and Information Gain 
+    #Given by Modelling with a RandomForest
+    def featureImportance(self, data):
+        predictors = ["Pclass", "Sex", "Age", "FamilySize", "Fare_Per_Person",
+        "Deck","Title"]
+        selector = SelectKBest(f_classif, k=5)
+        selector.fit(data[predictors], data["Survived"])
+        scores = -np.log10(selector.pvalues_)
+        plt.bar(range(len(predictors)), scores)
+        plt.xticks(range(len(predictors)), predictors, rotation='vertical')
+        plt.show()
+
           
           
           
