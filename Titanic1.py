@@ -103,26 +103,47 @@ class TitanicSurivalModel:
    
    #Turning cabin number into Deck
    #adds deck as feature and then returns data
-    def cabintoClass(self,data):
+    def cabintoDeck(self,data):
         cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
         data['Deck']=data['Cabin'].map(lambda x: self.substrings_in_string(x, cabin_list))
         return data
+
+    ##gets Correlation Matrix and returns of all columns
+    def getCorr(self,data):
+        corrMatrix = data.corr()
+        return corrMatrix
+        
+    def addFeatures(self,data):
+        data = self.calcFamilySize(data)
+        data = self.farePerPerson(data)
+        data = self.cabintoDeck(data)
+        data = self.calcTitles(data)
+        return data
+       
+        
           
-class Passenger:
-    ## Initialize a passenger
-    def __init__(self, survived, pClass, name, sex, age, sibSp, parch, 
-                 fare, embarked):
-        self.survived = survived
-        self.pClass = pClass
-        self.name = name
-        self.sex = sex
-        self.age = age
-        self.sibSp = sibSp
-        self.parch = parch
-        self.fare = fare
-        self.embarked = embarked
-        self.title = ""
-        self.familySize = self.sibSp + self.parch
+################################################################################          
+ ##############################Modelling#######################################         
+          
+          
+          
+          
+          
+#class Passenger:
+#    ## Initialize a passenger
+#    def __init__(self, survived, pClass, name, sex, age, sibSp, parch, 
+#                 fare, embarked):
+#        self.survived = survived
+#        self.pClass = pClass
+#        self.name = name
+#        self.sex = sex
+#        self.age = age
+#        self.sibSp = sibSp
+#        self.parch = parch
+#        self.fare = fare
+#        self.embarked = embarked
+#        self.title = ""
+#        self.familySize = self.sibSp + self.parch
         
     
         
