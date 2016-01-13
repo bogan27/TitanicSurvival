@@ -8,6 +8,7 @@ Created on Sun Jan 10 13:12:16 2016
 # Import Modules
 import numpy as np
 import pandas as pd
+import DataQualityTool as dqt
 from sklearn import linear_model
 
 
@@ -22,6 +23,10 @@ class DataAnalyzer:
         self.response = 3
 
         self.data = pd.read_csv(self.dataUrl, index_col= self.index)
+        
+    ## Set the data for analysis
+    def setData(self, data):
+        self.data = data
       
     ## Determine what type of analysis the user wants, instantiate an object 
     ## that can perform that analysis, and execute it
@@ -29,6 +34,28 @@ class DataAnalyzer:
         if analysisType == "regression":
             regModel = LinRegModel(self.data, self.response)
             print regModel.analyze()
+            
+    ## Given a DataFrame, returns a list containing the names of all
+    ## variables determined to be nominal. A variable is considered nominal if
+    ## its values are strings, and if the ratio of unique values to total 
+    ## values falls below the threshold, which is 25% by default, but can be 
+    ## specified by an optional second argument. 
+    def getNameOfNoms(self, data, threshold=.25):
+        uniquePercentages = dqt.DataQualityTool(data).analyze().loc[['unique_percent'],]      
+        answer = []
+        for column in data:
+            curCol = data[column]
+            isNominal = True
+            if curCol.size < 1:
+                isNominal = False
+            elif type(curCol.iat[curCol.first_valid_index() - 1]) != str:
+                isNominal = False
+            elif uniquePercentages[column][0] >= threshold:
+                isNominal  = False
+            if isNominal:
+                answer.append(column)
+        return answer
+                
        
        
 ## A class for performing linear regression
@@ -88,3 +115,5 @@ class LinRegModel:
         metrics = pd.Series(["Coefficient", "MSE", "Variance Score"])
         resultsDF.index = metrics
         return resultsDF
+        
+

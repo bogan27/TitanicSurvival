@@ -2,7 +2,7 @@
 """
 Created on Sun Jan 10 21:20:29 2016
 
-@author: brandonbogan
+@author: Brandon Bogan and Sarah Cooper
 """
 ## Import Modeules
 import pandas as pd
@@ -106,6 +106,8 @@ class TitanicSurivalModel:
     def cabintoDeck(self,data):
         cabin_list = ['A', 'B', 'C', 'D', 'E', 'F', 'T', 'G', 'Unknown']
         data['Deck']=data['Cabin'].map(lambda x: self.substrings_in_string(str(x), cabin_list))
+        ## Replace nulls with "Unknown"        
+#        data['Deck'] = data['Deck'].fillna("Unknown")
         return data
 
     ## Gets Correlation Matrix and returns of all columns
