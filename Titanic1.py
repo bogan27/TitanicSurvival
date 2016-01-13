@@ -18,7 +18,7 @@ from DataQualityTool import DataQualityTool
 class TitanicSurivalModel:
     ## Initialize the model
     def __init__(self):
-        os.chdir("/Users/brandonbogan/Desktop/DataScience/Python /Titanic")
+        os.chdir("/Users/brandonbogan/Desktop/DataScience/Python /Titanic/Data")
         self.train = pd.read_csv("train.csv", index_col= 0)
         self.test = pd.read_csv("train.csv", index_col= 0)
         self.dqTool = DataQualityTool(self.train)
