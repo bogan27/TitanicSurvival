@@ -14,6 +14,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 sys.path.append("..")
 from DataQualityTool import DataQualityTool
+import DataAnalyzer
 from sklearn.feature_selection import SelectKBest, f_classif
 
 
@@ -25,6 +26,7 @@ class TitanicSurivalModel:
         self.train = pd.read_csv("train.csv", index_col= 0)
         self.test = pd.read_csv("train.csv", index_col= 0)
         self.dqTool = DataQualityTool(self.train)
+        self.dataAnalyzer = DataAnalyzer()
         
     ##Explortory Data Analysis
     ##Graphing each column to explore distrubtions and survivor rates
@@ -134,11 +136,11 @@ class TitanicSurivalModel:
     def deleteFeatures(self, data):
         return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1)
         
-    #Create dummy variables for strings that need to me turned into
-    #Nominal variables could also have C(varibale) to tell Python categorical
-    #Return data
+    ## Create dummy variables for strings that need to me turned into
+    ## Nominal variables could also have C(varibale) to tell Python categorical
+    ## Return data
     def nominaltoDummy(self, data):
-        Nominal  = self.getNameOfNoms(data)
+        Nominal  = self.dataAnalyzer.getNameOfNoms(data)
         return Nominal
           
 ################################################################################          
