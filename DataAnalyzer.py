@@ -10,6 +10,11 @@ import numpy as np
 import pandas as pd
 import DataQualityTool as dqt
 from sklearn import linear_model
+from sklearn.feature_selection import SelectKBest
+from sklearn.svm import SVC
+from sklearn.cross_validation import StratifiedKFold
+from sklearn.feature_selection import RFECV
+import matplotlib.pyplot as plt
 
 
 # DataAnalyzer class directs the types of analysis to be done based on
@@ -57,8 +62,31 @@ class DataAnalyzer:
                 answer.append(column)
         return answer
                 
-       
-       
+##############################Build Feature Importance Tools##################       
+    def univariateFeatureselection(self, data, scoringfunction, nooffeatures, response):
+         X_new = SelectKBest(scoringfunction, k=nooffeatures).fit_transform(data, response)
+         return X_new
+         
+         
+    def recurrsiveFeatureselction(self, data, response):
+        # Create the RFE object and compute a cross-validated score.
+        svc = SVC(kernel="linear")
+        # The "accuracy" scoring is proportional to the number of correct
+        # classifications
+        rfecv = RFECV(estimator=svc, step=1, cv=StratifiedKFold(response, 2),
+              scoring='accuracy')
+        rfecv.fit(data, response)
+        print("Optimal number of features : %d" % rfecv.n_features_)
+
+# Plot number of features VS. cross-validation scores
+        plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score (nb of correct classifications)")
+        plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+        plt.show()
+        
+        
+        
 ## A class for performing linear regression
 class RegressionTool:
     
