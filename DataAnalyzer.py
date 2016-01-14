@@ -63,7 +63,9 @@ class RegressionTool:
     
     ## Instantiate the class with a dataset and the col index of the response
     ## variable of that set
-    def __init__(self, data, response):
+    ## Argument for data should be a Pandas DataFrame, and the argument for 
+    ## response should be a non-negative integer
+    def __init__(self, data, response):        
         self.data = data
         self.response = response
         

@@ -12,10 +12,13 @@ import pylab as P
 import string
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.feature_selection import SelectKBest, f_classif
+
+## Local modules
 sys.path.append("..")
 from DataQualityTool import DataQualityTool
 import DataAnalyzer
-from sklearn.feature_selection import SelectKBest, f_classif
+
 
 
 
