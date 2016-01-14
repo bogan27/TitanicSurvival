@@ -32,8 +32,8 @@ class DataAnalyzer:
     ## that can perform that analysis, and execute it
     def analyze(self, analysisType):
         if analysisType == "regression":
-            regModel = LinRegModel(self.data, self.response)
-            print regModel.analyze()
+            regTool = RegressionTool(self.data, self.response)
+            print regTool.analyze()
             
     ## Given a DataFrame, returns a list containing the names of all
     ## variables determined to be nominal. A variable is considered nominal if
@@ -59,12 +59,26 @@ class DataAnalyzer:
        
        
 ## A class for performing linear regression
-class LinRegModel:
+class RegressionTool:
     
-    ## Instantiate the class
+    ## Instantiate the class with a dataset and the col index of the response
+    ## variable of that set
     def __init__(self, data, response):
         self.data = data
         self.response = response
+        
+    ## Return the current model's data, as a Pandas DataFrame
+    def getData(self):
+        return self.data
+        
+    ## Set the DataFrame that should be used for this model.
+    ## If not a DataFrame, the new data will not be used. 
+    def setData(self, data):
+        if isinstance(data, pd.DataFrame):
+            self.data = data
+        else:
+            print 'WARNING! DATA REJECTED!'
+            print 'Argument for data must be a pandas DataFrame'
         
     ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
     ## score for each feature
@@ -115,5 +129,28 @@ class LinRegModel:
         metrics = pd.Series(["Coefficient", "MSE", "Variance Score"])
         resultsDF.index = metrics
         return resultsDF
+        
+    ## Takes in a Pandas DataFrame and a list of column names to be treated as 
+    ## nominal variables, and returns a Pandas DataFrame. 
+    ## For each column in the list, dummy variables will be added to the 
+    ## DataFrame for each value in the column, then the column will be removed.
+    def convertCatsToDummies(self, data, cols):
+        if isinstance(data, pd.DataFrame) and isinstance(cols, list):
+            for col in cols:
+                dummies = pd.get_dummies(data[col])
+                dummyNames = []
+                for d in dummies:
+                    name = col + "_" + d
+                    dummyNames.append(name)
+                dummies.columns = dummyNames
+                data = pd.concat([data, dummies], axis = 1)
+                data = data.drop(col, 1)
+            return data
+        else:
+            print ""
+            print "ERROR! Invalid data types of arguments."
+            print ""
+                
+        
         
 
