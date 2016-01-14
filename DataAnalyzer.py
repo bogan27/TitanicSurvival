@@ -31,9 +31,10 @@ class DataAnalyzer:
     ## Determine what type of analysis the user wants, instantiate an object 
     ## that can perform that analysis, and execute it
     def analyze(self, analysisType):
-        if analysisType == "regression":
+        ## For linear regression
+        if analysisType == "lr":
             regTool = RegressionTool(self.data, self.response)
-            print regTool.analyze()
+            print regTool.analyzeLinReg()
             
     ## Given a DataFrame, returns a list containing the names of all
     ## variables determined to be nominal. A variable is considered nominal if
@@ -84,7 +85,7 @@ class RegressionTool:
         
     ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
     ## score for each feature
-    def analyze(self):
+    def analyzeLinReg(self):
         
         ## Get the target variable 
         responseData = self.data.iloc[:,self.response]

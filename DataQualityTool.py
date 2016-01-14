@@ -5,6 +5,7 @@ Created on Sun Jan 10 21:41:15 2016
 @author: brandonbogan and Sarah Cooper
 """
 import pandas as pd
+from sklear.feature_selection import VarianceThreshold
 from decimal import Decimal
 
 class DataQualityTool: 
@@ -52,6 +53,13 @@ class DataQualityTool:
     ## Count the number of missing or bad values
     def countBadValues(self, x):
         return x.isnull().sum()
+        
+    ## Removes variables with low variance
+    ## Takes in a DataFrame
+    ## Returns a DataFrame
+#    def removeLowVarianceVars(self, data):
+        
+
         
         
         

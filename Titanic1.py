@@ -130,6 +130,7 @@ class TitanicSurivalModel:
         data = self.farePerPerson(data)
         data = self.cabintoDeck(data)
         data = self.calcTitles(data)
+        data['Embarked'].fillna('S')
         return data
     
     
@@ -137,7 +138,7 @@ class TitanicSurivalModel:
     ## returns the dataset. These variables are removed because they are either 
     ## arbitrary strings, or represented in other variables. 
     def deleteFeatures(self, data):
-        return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1).drop("SibSp",1).drop("Parch")
+        return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1).drop("SibSp",1).drop("Parch",1)
         
     
     ## Returns a list containing the column names or nominal variables
@@ -153,6 +154,19 @@ class TitanicSurivalModel:
         nominals  = self.getNominalNames(data)
         rt = da.RegressionTool(data, 0)
         return rt.convertCatsToDummies(data, nominals)
+        
+    ## Completely preps the data for building models
+    ## Takes one argument, a Pandas DataFrame
+    ## Returns a DataFrame
+    def prepData(self, data):
+        if not isinstance(data, pd.DataFrame):
+            print "\n" + "ERROR! Wrong type of data!" + "\n"
+        else:
+            data = self.addFeatures(data)
+            data = self.deleteFeatures(data)
+            data = self.nominaltoDummy(data)
+            return data
+        
 
           
 ################################################################################          
