@@ -2,7 +2,7 @@
 """
 Created on Sun Jan 10 13:12:16 2016
 
-@author: brandonbogan
+@author: brandonbogan and Sarah Cooper
 """
 
 # Import Modules
