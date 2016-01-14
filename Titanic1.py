@@ -17,7 +17,7 @@ from sklearn.feature_selection import SelectKBest, f_classif
 ## Local modules
 sys.path.append("..")
 from DataQualityTool import DataQualityTool
-import DataAnalyzer
+import DataAnalyzer as da
 
 
 
@@ -29,7 +29,7 @@ class TitanicSurivalModel:
         self.train = pd.read_csv("train.csv", index_col= 0)
         self.test = pd.read_csv("train.csv", index_col= 0)
         self.dqTool = DataQualityTool(self.train)
-        self.dataAnalyzer = DataAnalyzer()
+        self.dataAnalyzer = da.DataAnalyzer()
         
     ##Explortory Data Analysis
     ##Graphing each column to explore distrubtions and survivor rates
@@ -137,14 +137,23 @@ class TitanicSurivalModel:
     ## returns the dataset. These variables are removed because they are either 
     ## arbitrary strings, or represented in other variables. 
     def deleteFeatures(self, data):
-        return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1)
+        return data.drop("Fare",1).drop("Cabin",1).drop("Name",1).drop("Ticket",1).drop("SibSp",1).drop("Parch")
         
-    ## Create dummy variables for strings that need to me turned into
-    ## Nominal variables could also have C(varibale) to tell Python categorical
-    ## Return data
-    def nominaltoDummy(self, data):
+    
+    ## Returns a list containing the column names or nominal variables
+    def getNominalNames(self, data):
         Nominal  = self.dataAnalyzer.getNameOfNoms(data)
         return Nominal
+        
+    ## Takes in a Pandas DataFrame and a list of column names to be treated as 
+    ## nominal variables, and returns a Pandas DataFrame. 
+    ## For each column in the list, dummy variables will be added to the 
+    ## DataFrame for each value in the column, then the column will be removed.
+    def nominaltoDummy(self, data):
+        nominals  = self.getNominalNames(data)
+        rt = da.RegressionTool(data, 0)
+        return rt.convertCatsToDummies(data, nominals)
+
           
 ################################################################################          
  ##############################Modelling#######################################         
