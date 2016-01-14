@@ -54,12 +54,22 @@ class DataQualityTool:
     def countBadValues(self, x):
         return x.isnull().sum()
         
-    ## Removes variables with low variance
-    ## Takes in a DataFrame
+    ## Removes variables with low variance, such as boolean variables that are
+    ## the same more than the threshold % of the time
+    ## Takes in a DataFrame, and an optional threshold
+    ## between 0 and 1 (default is .8)
     ## Returns a DataFrame
-#    def removeLowVarianceVars(self, data):
         
-
+        ## NOT FINISHED!
+        ## Look into using .var() method for pd dfs
+#    def removeLowVarianceVars(self, data, threshold = 0.9):
+#        if not isinstance(data, pd.DataFrame):
+#            print "\n" + "ERROR! Wrong type of data - must be DataFrame." + "\n"
+#        if threshold <= 0 or threshold >= 1:
+#            print "\n" + "ERROR! Threshold must be between 0 and 1." + "\n"      
+#        selector  = VarianceThreshold(threshold=(threshold * (1 - threshold)))
+#        answer = selector.fit_transform(data.as_matrix)
+        
         
         
         
