@@ -186,6 +186,35 @@ class RegressionTool:
             print ""
             print "ERROR! Invalid data types of arguments."
             print ""
+            
+    ## Builds a regression model based on the given data set, which must be a 
+    ## Pandas DataFrame, and the column name of the dependent variable
+    def buildModel(self, data, depenVar):
+        if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
+            print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
+        else:
+            dependent = data[depenVar]
+            independents = data.drop(depenVar,1)
+            regr = linear_model.LinearRegression()
+            return regr.fit(independents, dependent)
+            
+    ## Fill in missing values with the predicted values
+    ## Takes in a DataFrame, and the name of the column to fill in
+    def predictNulls(self, data, depenVar):
+        if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
+            print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
+        else:
+            model = self.buildModel(data, depenVar)
+            curRow = 0
+            for record in data.iterrows():
+                if record['Age'] is None:
+                    newAge = model.predict(record)
+                    data[depenVar].iat[curRow] = newAge
+                    curRow += 1
+            return data
+            
+    ## ^^^ NEED TO FINISH FIXING THIS METHOD ^^^
+                    
                 
         
         
