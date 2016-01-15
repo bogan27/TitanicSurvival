@@ -121,7 +121,7 @@ class TitanicSurivalModel:
         return data
         
     def missingAge(self,data):
-        age_glm = smf.glm(formula = 'Age \~ Title + FamilySize + Sex + ', df =data, 
+        age_glm = smf.glm(formula = 'Age \~ Title + FamilySize + Sex', df =data, 
                       datafamily=sm.families.Binomial()).fit()
         print age_glm.summary()
 
