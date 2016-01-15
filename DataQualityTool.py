@@ -11,6 +11,17 @@ from decimal import Decimal
 class DataQualityTool: 
     def __init__(self, data):
         self.data = data
+        
+    ## Set the data to be used for this tool's analysis, if data is a DataFrame
+    def setData(self, data):
+        if isinstance(data, pd.DataFrame):
+            self.data = data
+        else:
+            print '\n' + "ERROR! Data must be a Pandas DataFrame!" + '\n'
+            
+    ## Return the data currently being used by this tool
+    def getData(self):
+        return self.data
     
     ## Returns table with the following info for each column:
     ## Number of unique values, % of vallues that are unique, 

@@ -33,6 +33,10 @@ class DataAnalyzer:
     ## Set the data for analysis
     def setData(self, data):
         self.data = data
+    
+    ## Return the data currently being used by this tool
+    def getData(self):
+        return self.data
       
     ## Determine what type of analysis the user wants, instantiate an object 
     ## that can perform that analysis, and execute it
