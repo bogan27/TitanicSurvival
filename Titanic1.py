@@ -13,6 +13,8 @@ import string
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.feature_selection import SelectKBest, f_classif
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
 
 ## Local modules
 sys.path.append("..")
@@ -117,6 +119,11 @@ class TitanicSurivalModel:
         ## Replace nulls with "Unknown"        
         data['Deck'] = data['Deck'].fillna("Unknown")
         return data
+        
+    def missingAge(self,data):
+        age_glm = smf.glm(formula = 'Age \~ Title + FamilySize + Sex + ', df =data, 
+                      datafamily=sm.families.Binomial()).fit()
+        print age_glm.summary()
 
     ## Gets Correlation Matrix and returns of all columns
     def getCorr(self,data):
