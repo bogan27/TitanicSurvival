@@ -13,6 +13,7 @@ from sklearn import linear_model
 from sklearn.feature_selection import SelectKBest
 from sklearn.svm import SVC
 from sklearn.cross_validation import StratifiedKFold
+import sklearn.feature_selection 
 from sklearn.feature_selection import RFECV
 import matplotlib.pyplot as plt
 
