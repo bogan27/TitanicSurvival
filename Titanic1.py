@@ -188,53 +188,48 @@ class TitanicSurivalModel:
     #Looking at Feature Importance using Entropy and Information Gain 
     #Given by Modelling with a RandomForest
     def featureImportance(self, data):
-#        predictors = ["Pclass", "Sex", "Age", "FamilySize", "Fare_Per_Person",
-#        "Deck","Title"]
-        response = ["Survived"]
+        ##make all inputs
+        features_list = data.columns.values[1::]
+        predictors = data.values[:, 1::]
+        response = data.values[:, 0]
+        fi_threshold = 15
+        
+        # Fit a tree to determine feature importance 
+        ## add in to use Extra tree or Random Forest
+        forest = ExtraTreesClassifier(n_estimators=250,
+                              random_state=0)
+        forest.fit(predictors, response)
+        feature_importance = forest.feature_importances_
+ 
+        # make importances relative to max importance
+        #Get the indexes of all features over the importance threshold
+        feature_importance = 100.0 * (feature_importance / feature_importance.max())
+        important_idx = np.where(feature_importance > fi_threshold)[0]
+        
+           # Create a list of all the feature names above the importance threshold
+        important_features = features_list[important_idx]
+        print "\n", important_features.shape[0], "Important features(>", fi_threshold, "% of max importance):\n", \
+            important_features
 
-        # Build a forest and compute the feature importances
-        #n-esimator = # of trees in forest default 10
-        forest = ExtraTreesClassifier(n_estimators=250, random_state=0)
-        forest.fit(data, data[response])
-        importances = forest.feature_importances_
-        ##Compute the standard deviation along the specified axis.
+        ##get std for the graphing
         std = np.std([tree.feature_importances_ for tree in forest.estimators_],
              axis=0)
-        indices = np.argsort(importances)[::-1]
-
-        # Print the feature ranking
-        print("Feature ranking:")
-
-        for f in range(data.shape[1]):
-            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
-
+        std =std*100
+        # Get the sorted indexes of important features
+        sorted_idx = np.argsort(feature_importance[important_idx])[::-1]
+        for f in range(sorted_idx.shape[0]):
+            print("%d. feature %d (%s)" % (f + 1, sorted_idx[f], important_features[sorted_idx[f]]))
+     
         # Plot the feature importances of the forest
         plt.figure()
-        plt.title("Feature importances")
-        plt.bar(range(data.shape[1]), importances[indices],
-                color="r", yerr=std[indices], align="center")
-        plt.xticks(range(data.shape[1]), indices)
-        plt.xlim([-1, data.shape[1]])
+        plt.title("Feature importance")
+        plt.bar(range(sorted_idx.shape[0]), feature_importance[important_idx][sorted_idx[::-1]],
+            color="r", yerr=std[sorted_idx[::-1]], align="center")
+        plt.xticks(range(sorted_idx.shape[0]), sorted_idx[::-1])
+        plt.xlim([-1, sorted_idx.shape[0]])
         plt.show()
           
-          
-          
-          
-#class Passenger:
-#    ## Initialize a passenger
-#    def __init__(self, survived, pClass, name, sex, age, sibSp, parch, 
-#                 fare, embarked):
-#        self.survived = survived
-#        self.pClass = pClass
-#        self.name = name
-#        self.sex = sex
-#        self.age = age
-#        self.sibSp = sibSp
-#        self.parch = parch
-#        self.fare = fare
-#        self.embarked = embarked
-#        self.title = ""
-#        self.familySize = self.sibSp + self.parch
+      
         
     
         
