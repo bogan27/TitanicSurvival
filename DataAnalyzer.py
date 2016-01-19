@@ -6,8 +6,10 @@ Created on Sun Jan 10 13:12:16 2016
 """
 
 # Import Modules
+import math
 import numpy as np
 import pandas as pd
+from pandas.stats.api import ols
 import DataQualityTool as dqt
 from sklearn import linear_model
 from sklearn.feature_selection import SelectKBest
@@ -193,6 +195,7 @@ class RegressionTool:
         if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
             print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
         else:
+            data = data[np.isfinite(data[depenVar])]
             dependent = data[depenVar]
             independents = data.drop(depenVar,1)
             regr = linear_model.LinearRegression()
@@ -204,16 +207,11 @@ class RegressionTool:
         if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
             print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
         else:
-            model = self.buildModel(data, depenVar)
-            curRow = 0
-            for record in data.iterrows():
-                if record['Age'] is None:
-                    newAge = model.predict(record)
-                    data[depenVar].iat[curRow] = newAge
-                    curRow += 1
-            return data
-            
-    ## ^^^ NEED TO FINISH FIXING THIS METHOD ^^^
+            model = model = ols(y=data['Age'], x=data.drop('Age',1))
+            estimates = model.predict()
+            estimateDF = data.copy()
+            estimateDF[depenVar] = estimates
+            return data.combine_first(estimateDF)
                     
                 
         
