@@ -15,6 +15,10 @@ import matplotlib.pyplot as plt
 from sklearn.feature_selection import SelectKBest, f_classif
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import make_classification
+from sklearn.ensemble import ExtraTreesClassifier
 
 ## Local modules
 sys.path.append("..")
@@ -172,6 +176,8 @@ class TitanicSurivalModel:
             data = self.addFeatures(data)
             data = self.deleteFeatures(data)
             data = self.nominaltoDummy(data)
+            replacement_value = data['Age'].mean()
+            data = data.fillna({'Age': replacement_value})
             return data
         
 
@@ -182,15 +188,34 @@ class TitanicSurivalModel:
     #Looking at Feature Importance using Entropy and Information Gain 
     #Given by Modelling with a RandomForest
     def featureImportance(self, data):
-        predictors = ["Pclass", "Sex", "Age", "FamilySize", "Fare_Per_Person",
-        "Deck","Title"]
-        selector = SelectKBest(f_classif, k=5)
-        selector.fit(data[predictors], data["Survived"])
-        scores = -np.log10(selector.pvalues_)
-        plt.bar(range(len(predictors)), scores)
-        plt.xticks(range(len(predictors)), predictors, rotation='vertical')
-        plt.show()
+#        predictors = ["Pclass", "Sex", "Age", "FamilySize", "Fare_Per_Person",
+#        "Deck","Title"]
+        response = ["Survived"]
 
+        # Build a forest and compute the feature importances
+        #n-esimator = # of trees in forest default 10
+        forest = ExtraTreesClassifier(n_estimators=250, random_state=0)
+        forest.fit(data, data[response])
+        importances = forest.feature_importances_
+        ##Compute the standard deviation along the specified axis.
+        std = np.std([tree.feature_importances_ for tree in forest.estimators_],
+             axis=0)
+        indices = np.argsort(importances)[::-1]
+
+        # Print the feature ranking
+        print("Feature ranking:")
+
+        for f in range(data.shape[1]):
+            print("%d. feature %d (%f)" % (f + 1, indices[f], importances[indices[f]]))
+
+        # Plot the feature importances of the forest
+        plt.figure()
+        plt.title("Feature importances")
+        plt.bar(range(data.shape[1]), importances[indices],
+                color="r", yerr=std[indices], align="center")
+        plt.xticks(range(data.shape[1]), indices)
+        plt.xlim([-1, data.shape[1]])
+        plt.show()
           
           
           
