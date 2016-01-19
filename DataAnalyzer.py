@@ -6,10 +6,10 @@ Created on Sun Jan 10 13:12:16 2016
 """
 
 # Import Modules
-import math
 import numpy as np
 import pandas as pd
 from pandas.stats.api import ols
+import statsmodels.api as sm
 import DataQualityTool as dqt
 from sklearn import linear_model
 from sklearn.feature_selection import SelectKBest
@@ -202,16 +202,35 @@ class RegressionTool:
             return regr.fit(independents, dependent)
             
     ## Fill in missing values with the predicted values
-    ## Takes in a DataFrame, and the name of the column to fill in
-    def predictNulls(self, data, depenVar):
-        if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
+    ## Takes in a DataFrame, the name of the column to fill in, and an optional
+    ## code for a distribution family (defaiults to Gaussian) for the dependent
+    ## variable. The following are codes that correspond to available families:
+    ##      1 - Binomial
+    ##      2 - Gamma
+    ##      3 - Gaussian
+    ##      4 - Inverse Gaussian
+    ##      5 - Negative Binomial
+    ##      6 - Poisson
+    def predictNulls(self, d, depenVar, familyCode=3):
+        if not isinstance(d, pd.DataFrame) or not isinstance(depenVar, str):
             print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
         else:
-            model = model = ols(y=data['Age'], x=data.drop('Age',1))
+            distFams = [sm.families.Binomial(), sm.families.Gamma(),
+                        sm.families.Gaussian(), sm.families.InverseGaussian(),
+                        sm.families.NegativeBinomial(), sm.families.Poisson()]
+            fam = distFams[familyCode - 1]
+            model = sm.GLM(d[depenVar], data=d.drop(depenVar,1), family=fam)
+            model =  model.fit()
             estimates = model.predict()
-            estimateDF = data.copy()
+            estimateDF = d.copy()
             estimateDF[depenVar] = estimates
-            return data.combine_first(estimateDF)
+            return d.combine_first(estimateDF)
+            
+#            model = ols(y=data[depenVar], x=data.drop(depenVar,1))
+#            estimates = model.predict()
+#            estimateDF = data.copy()
+#            estimateDF[depenVar] = estimates
+#            return data.combine_first(estimateDF)
                     
                 
         
