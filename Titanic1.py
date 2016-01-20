@@ -12,14 +12,9 @@ import pylab as P
 import string
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.feature_selection import SelectKBest, f_classif
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn import datasets
 from sklearn.feature_selection import RFE
 from sklearn.svm import SVR
 
