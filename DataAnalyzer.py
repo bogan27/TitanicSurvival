@@ -211,7 +211,7 @@ class RegressionTool:
     ##      4 - Inverse Gaussian
     ##      5 - Negative Binomial
     ##      6 - Poisson
-    def predictNulls(self, d, depenVar, familyCode):
+    def predictNullsGLM(self, d, depenVar, familyCode=3, roundTo=2):
         if not isinstance(d, pd.DataFrame) or not isinstance(depenVar, str):
             print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
         else:
@@ -219,24 +219,26 @@ class RegressionTool:
                         sm.families.Gaussian(), sm.families.InverseGaussian(),
                         sm.families.NegativeBinomial(), sm.families.Poisson()]
             fam = distFams[familyCode - 1]
-            dat = np.asarray(d[depenVar])
-            dat = dat[np.logical_not(np.isnan(dat))]
-#            mdat = np.ma.masked_invalid(dat)
-#            print mdat
-            model = sm.GLM(dat, exog= np.asarray(d.drop(depenVar, 1)), family=fam)
-#            model = sm.formula.glm(formula = depenVar + " ~ Fare", data = d.drop(depenVar, 1),
-#                                   family = fam )
+            dClean = d.dropna()
+            dat = np.asarray(dClean[depenVar])
+            model = sm.GLM(dat, exog= np.asarray(dClean.drop(depenVar, 1)), 
+                           family=fam)
             model =  model.fit()
-            estimates = model.predict()
+            estimates = model.predict(exog = d.drop(depenVar,1))
             estimateDF = d.copy()
             estimateDF[depenVar] = estimates
+            estimateDF[depenVar] = estimateDF[depenVar].round(roundTo)
             return d.combine_first(estimateDF)
             
-#            model = ols(y=data[depenVar], x=data.drop(depenVar,1))
-#            estimates = model.predict()
-#            estimateDF = data.copy()
-#            estimateDF[depenVar] = estimates
-#            return data.combine_first(estimateDF)
+    ## Fill in the missing values with the predicted values
+    ## Takes in a PD DataFrame and the String name of the dependent variable
+    ## Note: Only works on numeric values
+    def predictNullsOLS(self, data, depenVar):
+            model = ols(y=data[depenVar], x=data.drop(depenVar,1))
+            estimates = model.predict()
+            estimateDF = data.copy()
+            estimateDF[depenVar] = estimates
+            return data.combine_first(estimateDF)
                     
                 
         
