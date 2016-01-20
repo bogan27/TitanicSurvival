@@ -16,7 +16,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.feature_selection import RFE
-from sklearn.svm import SVR
+from sklearn.svm import SVC
+from sklearn.cross_validation import StratifiedKFold
 
 ## Local modules
 sys.path.append("..")
@@ -234,22 +235,37 @@ class TitanicSurivalModel:
         features_list = data.columns.values[1::]
         predictors = np.asarray(data.values[:, 1::])
         response = np.asarray(data.values[:, 0])
-        noffeatures = 10        
+        estimator = SVC(kernel="linear")
         
-        estimator = SVR(kernel="linear")
+        ###using cross validation to determine nooffeatures
+        rfecv = RFE(estimator, step=1, cv=StratifiedKFold(response, 2), scoring = 'accuracy')
+        rfecv.fit(predictors, response)
+        RFE( )
+        print("Optimal number of features : %d" % rfecv.n_features_)
+        
+        # Plot number of features VS. cross-validation scores
+        plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score (nb of correct classifications)")
+        plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+        plt.show()        
+        
+        ##label as optimal #of features
+        noffeatures = rfecv.n_features_  
+        
+        ##use rfe to determine top features
         selector = RFE(estimator,noffeatures , step=1)
         selector = selector.fit(predictors, response)
         ##creat index to get names
         index1 = np.where(selector.support_ == False)[0]
         index = np.argsort(selector.ranking_[index1])[::-1]
         feature_list_imp = features_list[index]
-        
-        
+
         for f in range(index.shape[0]):
             print("%d. feature %d (%s)" % (f + 1, index[f], feature_list_imp[index[f]]))
         print(selector.support_)
         print(selector.ranking_)
-
+        
    
 
         
