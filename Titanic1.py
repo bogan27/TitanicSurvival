@@ -239,8 +239,10 @@ class TitanicSurivalModel:
         features_list = data.columns.values[1::]
         predictors = np.asarray(data.values[:, 1::])
         response = np.asarray(data.values[:, 0])
+        noffeatures = 10        
+        
         estimator = SVR(kernel="linear")
-        selector = RFE(estimator, 10, step=1)
+        selector = RFE(estimator,noffeatures , step=1)
         selector = selector.fit(predictors, response)
         ##creat index to get names
         index1 = np.where(selector.support_ == False)[0]
