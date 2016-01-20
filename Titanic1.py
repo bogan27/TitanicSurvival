@@ -19,6 +19,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_classification
 from sklearn.ensemble import ExtraTreesClassifier
+from sklearn import datasets
+from sklearn.feature_selection import RFE
+from sklearn.svm import SVR
 
 ## Local modules
 sys.path.append("..")
@@ -229,8 +232,29 @@ class TitanicSurivalModel:
         plt.show()
           
       
+  #############Recursive Feature Elimination##############
+
+    def RecurrciveFE(self, data):
+        data= data.dropna()
+        features_list = data.columns.values[1::]
+        predictors = np.asarray(data.values[:, 1::])
+        response = np.asarray(data.values[:, 0])
+        estimator = SVR(kernel="linear")
+        selector = RFE(estimator, 10, step=1)
+        selector = selector.fit(predictors, response)
+        ##creat index to get names
+        index1 = np.where(selector.support_ == False)[0]
+        index = np.argsort(selector.ranking_[index1])[::-1]
+        feature_list_imp = features_list[index]
         
-    
+        
+        for f in range(index.shape[0]):
+            print("%d. feature %d (%s)" % (f + 1, index[f], feature_list_imp[index[f]]))
+        print(selector.support_)
+        print(selector.ranking_)
+
+   
+
         
     
         
