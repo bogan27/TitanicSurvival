@@ -15,7 +15,6 @@ from sklearn import linear_model
 from sklearn.feature_selection import SelectKBest
 from sklearn.svm import SVC
 from sklearn.cross_validation import StratifiedKFold
-import sklearn.feature_selection 
 from sklearn.feature_selection import RFECV
 import matplotlib.pyplot as plt
 
@@ -97,21 +96,39 @@ class DataAnalyzer:
 ## A class for performing linear regression
 class RegressionTool:
     
-    ## Instantiate the class with a dataset and the col index of the response
-    ## variable of that set
-    ## Argument for data should be a Pandas DataFrame, and the argument for 
-    ## response should be a non-negative integer
-    def __init__(self, data, response):        
+    def __init__(self, data, response):
+        """
+        Initialize a RegressionTool instance
+
+        Parameters
+        ----------
+        data : DataFrame
+            The default set of data to be used for analysis in this tool's methods
+        response : int
+            The index of the column containing the response variable. 
+            
+        """
         self.data = data
         self.response = response
         
-    ## Return the current model's data, as a Pandas DataFrame
     def getData(self):
+        """Return the current model's data, as a Pandas DataFrame"""
         return self.data
         
-    ## Set the DataFrame that should be used for this model.
     ## If not a DataFrame, the new data will not be used. 
     def setData(self, data):
+        """
+        Set the DataFrame that should be used for this model.
+        
+        Parameters
+        ----------
+        data : DataFrame
+            The default set of data to be used for analysis in this tool's methods
+            
+        Returns
+        -------
+        out : *None*
+        """
         if isinstance(data, pd.DataFrame):
             self.data = data
         else:
@@ -120,11 +137,28 @@ class RegressionTool:
         
     ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
     ## score for each feature
-    def analyzeLinReg(self):
-        """ Provides statistics on the variables of this instances data """
+    def analyzeLinReg(self, data=None, response=None):
+        """ 
+        Provides statistics on the variables of this instances data.
+        
+        More specifically, calculates the coefficient, MSE, and Variance Score
+        for each independent variable.
+        
+        Parameters
+        ----------
+        data : DataFrame
+            Default value is self.data, but an optional DataFrame can be passed
+            to be analyzed instead, without having any affect on self.data. 
+        TODO: Finish this document
+        """
+        if data is None:
+            data = self.data
+        if response is None:
+            response = self.response
+        
         ## Get the target variable 
-        responseData = self.data.iloc[:,self.response]
-        rowCount = len(self.data.index)
+        responseData = data.iloc[:,response]
+        rowCount = len(data.index)
         responseTrain = responseData[0:rowCount/2]
         responseTest = responseData[(rowCount / 2):rowCount]
         
@@ -133,14 +167,14 @@ class RegressionTool:
         
         ## Set the counting variable to 0 and loop through the variables
         currentCol = 0
-        for col in self.data.columns:
+        for col in data.columns:
             ## If the current column is the index or the target variable, 
             ## increase the counter and move on
-            if currentCol == self.response:
+            if currentCol == response:
                 currentCol += 1 
             ## Otherwise, perform the regression analysis
             else:
-                currentVar = self.data.iloc[:,currentCol]
+                currentVar = data.iloc[:,currentCol]
                 currentTrain = currentVar[0:(rowCount / 2)]
                 currentTest = currentVar[(rowCount / 2):rowCount]                
                 # Create linear regression object
@@ -155,7 +189,7 @@ class RegressionTool:
                 variance = regr.score(currentTest[:,np.newaxis], responseTest)                
                 
                 ## Log the metrics in the response df
-                colName = list(self.data.columns.values)[currentCol]
+                colName = list(data.columns.values)[currentCol]
                 resultsDF[colName] = pd.Series([coef, mse, variance])
                 print "Done analyzing " + colName
                 
@@ -168,10 +202,6 @@ class RegressionTool:
         resultsDF.index = metrics
         return resultsDF
         
-    ## Takes in a Pandas DataFrame and a list of column names to be treated as 
-    ## nominal variables, and returns a Pandas DataFrame. 
-    ## For each column in the list, dummy variables will be added to the 
-    ## DataFrame for each value in the column, then the column will be removed.
     def convertCatsToDummies(self, data, cols):
         """
         Converts specified catagorical variables into binary dummy variables,
@@ -198,25 +228,10 @@ class RegressionTool:
         gender_male and gender_female by calling:
 
         >>> categoricalD = convertCatsToDummies(d, ['Gender'])
+        >>> categoricalD.columns
+        ['Gender_male', 'Gender_Female']
           
         """
-#        For each column in the list, dummy variables will be added to the 
-#        DataFrame for each value in the column, then the column will be removed.
-#        
-#        Parameters
-#        ----------
-#        data: DataFrame 
-#              The df to be modified 
-#        :param cols: List of column names that should be converted into dummy
-#                     variables.
-#        :type cols: list[str]
-#        
-#        Returns
-#        -------
-#        :returns: DataFrame with all specied categorical variables converted to 
-#                  binary dummy variables. 
-#        :rtype: DataFrame
-#        """
         if isinstance(data, pd.DataFrame) and isinstance(cols, list):
             for col in cols:
                 dummies = pd.get_dummies(data[col])
