@@ -36,6 +36,7 @@ class TitanicSurivalModel:
         self.test = pd.read_csv("train.csv", index_col= 0)
         self.dqTool = DataQualityTool(self.train)
         self.dataAnalyzer = da.DataAnalyzer()
+        self.regressionTool = da.RegressionTool(self.train, 0)
         
     ##Explortory Data Analysis
     ##Graphing each column to explore distrubtions and survivor rates
@@ -176,8 +177,6 @@ class TitanicSurivalModel:
             data = self.addFeatures(data)
             data = self.deleteFeatures(data)
             data = self.nominaltoDummy(data)
-            replacement_value = data['Age'].mean()
-            data = data.fillna({'Age': replacement_value})
             return data
         
 
