@@ -121,7 +121,7 @@ class RegressionTool:
     ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
     ## score for each feature
     def analyzeLinReg(self):
-        
+        """ Provides statistics on the variables of this instances data """
         ## Get the target variable 
         responseData = self.data.iloc[:,self.response]
         rowCount = len(self.data.index)
@@ -173,6 +173,50 @@ class RegressionTool:
     ## For each column in the list, dummy variables will be added to the 
     ## DataFrame for each value in the column, then the column will be removed.
     def convertCatsToDummies(self, data, cols):
+        """
+        Converts specified catagorical variables into binary dummy variables,
+        then drops the categorical variables. 
+
+        Parameters
+        ----------
+        data : DataFrame
+            Input data, for which categorical variables should be converted
+        cols : List[str]
+            A list of column names to convert from categorical to dummy
+
+        Returns
+        -------
+        out : DataFrame
+            The original data frame but without any columns names in the ``cols``
+            argument, which are instead represented by the newly created dummy
+            variables. 
+
+        Example
+        -------
+        Suppose you have a DataFrame ``d`` that contains a column "Gender". You
+        could use this method to convert the Gender column to two new variables, 
+        gender_male and gender_female by calling:
+
+        >>> categoricalD = convertCatsToDummies(d, ['Gender'])
+          
+        """
+#        For each column in the list, dummy variables will be added to the 
+#        DataFrame for each value in the column, then the column will be removed.
+#        
+#        Parameters
+#        ----------
+#        data: DataFrame 
+#              The df to be modified 
+#        :param cols: List of column names that should be converted into dummy
+#                     variables.
+#        :type cols: list[str]
+#        
+#        Returns
+#        -------
+#        :returns: DataFrame with all specied categorical variables converted to 
+#                  binary dummy variables. 
+#        :rtype: DataFrame
+#        """
         if isinstance(data, pd.DataFrame) and isinstance(cols, list):
             for col in cols:
                 dummies = pd.get_dummies(data[col])
