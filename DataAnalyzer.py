@@ -211,7 +211,7 @@ class RegressionTool:
     ##      4 - Inverse Gaussian
     ##      5 - Negative Binomial
     ##      6 - Poisson
-    def predictNullsGLM(self, d, depenVar, familyCode=3, roundTo=2):
+    def predictNullsGLM(self, d, depenVar, familyCode=3, link=None, roundTo=2):
         if not isinstance(d, pd.DataFrame) or not isinstance(depenVar, str):
             print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
         else:
@@ -219,6 +219,8 @@ class RegressionTool:
                         sm.families.Gaussian(), sm.families.InverseGaussian(),
                         sm.families.NegativeBinomial(), sm.families.Poisson()]
             fam = distFams[familyCode - 1]
+            if link is not None:
+                fam._setlink(link)
             dClean = d.dropna()
             dat = np.asarray(dClean[depenVar])
             model = sm.GLM(dat, exog= np.asarray(dClean.drop(depenVar, 1)), 
