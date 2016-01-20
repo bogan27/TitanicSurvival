@@ -13,10 +13,11 @@ import statsmodels.api as sm
 import DataQualityTool as dqt
 from sklearn import linear_model
 from sklearn.feature_selection import SelectKBest
+import matplotlib.pyplot as plt
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.feature_selection import RFE
 from sklearn.svm import SVC
 from sklearn.cross_validation import StratifiedKFold
-from sklearn.feature_selection import RFECV
-import matplotlib.pyplot as plt
 
 
 # DataAnalyzer class directs the types of analysis to be done based on
@@ -302,6 +303,121 @@ class RegressionTool:
             return data.combine_first(estimateDF)
                     
                 
-        
-        
+   
+    #Looking at Feature Importance using Entropy and Information Gain 
+    #Given by Modelling with a RandomForest
+    def featureImportance(self, data, fi_threshold):
+        """
+        Models data with a Extra tree classifer and using information
+        importance feature to help aid dimensionality reduction. 
 
+        Parameters
+        ----------
+        data : DataFrame
+            Input data, for which categorical variables should be converted
+        fi_threshold : Integer
+            The number you want to set as the % threshold for features
+        
+        Returns
+        -------
+        out : Plot
+            A plot of the featues of most importance determined by the set 
+            threshold given and standard deviation tick marks
+          
+        """
+        
+        ##make all inputs
+        features_list = data.columns.values[1::]
+        predictors = data.values[:, 1::]
+        response = data.values[:, 0]
+    
+        # Fit a tree to determine feature importance 
+        ## add in to use Extra tree or Random Forest
+        forest = ExtraTreesClassifier(n_estimators=250,
+                              random_state=0)
+        forest.fit(predictors, response)
+        feature_importance = forest.feature_importances_
+ 
+        # make importances relative to max importance
+        #Get the indexes of all features over the importance threshold
+        feature_importance = 100.0 * (feature_importance / feature_importance.max())
+        important_idx = np.where(feature_importance > fi_threshold)[0]
+        
+           # Create a list of all the feature names above the importance threshold
+        important_features = features_list[important_idx]
+        print "\n", important_features.shape[0], "Important features(>", fi_threshold, "% of max importance):\n", \
+            important_features
+
+        ##get std for the graphing
+        std = np.std([tree.feature_importances_ for tree in forest.estimators_],
+             axis=0)
+        std =std*100
+        # Get the sorted indexes of important features
+        sorted_idx = np.argsort(feature_importance[important_idx])[::-1]
+        for f in range(sorted_idx.shape[0]):
+            print("%d. feature %d (%s)" % (f + 1, sorted_idx[f], important_features[sorted_idx[f]]))
+     
+        # Plot the feature importances of the forest
+        plt.figure()
+        plt.title("Feature importance")
+        plt.bar(range(sorted_idx.shape[0]), feature_importance[important_idx][sorted_idx[::-1]],
+            color="r", yerr=std[sorted_idx[::-1]], align="center")
+        plt.xticks(range(sorted_idx.shape[0]), sorted_idx[::-1])
+        plt.xlim([-1, sorted_idx.shape[0]])
+        plt.show()     
+        
+ #############Recursive Feature Elimination##############
+
+    def RecurrciveFE(self, data):
+        """
+        Uses Recurrcise Feature Elimination to determine the write number of 
+        features before adding additional leads to overfitting &
+        uses cross validation to determine the features of most importance
+        fitting a SVM with a linear kernel
+
+        Parameters
+        ----------
+        data : DataFrame
+            Input data, for which categorical variables should be converted
+
+        Returns
+        -------
+        out : Plot
+            A plot with the number of optimal number of features,
+            which is then used to determine features of most
+            importance returned in a print out to console
+          
+        """
+        features_list = data.columns.values[1::]
+        predictors = np.asarray(data.values[:, 1::])
+        response = np.asarray(data.values[:, 0])
+        estimator = SVC(kernel="linear")
+        
+        ###using cross validation to determine nooffeatures
+        rfecv = RFE(estimator, step=1, cv=StratifiedKFold(response, 2), scoring = 'accuracy')
+        rfecv.fit(predictors, response)
+        RFE( )
+        print("Optimal number of features : %d" % rfecv.n_features_)
+        
+        # Plot number of features VS. cross-validation scores
+        plt.figure()
+        plt.xlabel("Number of features selected")
+        plt.ylabel("Cross validation score (nb of correct classifications)")
+        plt.plot(range(1, len(rfecv.grid_scores_) + 1), rfecv.grid_scores_)
+        plt.show()        
+        
+        ##label as optimal #of features
+        noffeatures = rfecv.n_features_  
+        
+        ##use rfe to determine top features
+        selector = RFE(estimator,noffeatures , step=1)
+        selector = selector.fit(predictors, response)
+        ##creat index to get names
+        index1 = np.where(selector.support_ == False)[0]
+        index = np.argsort(selector.ranking_[index1])[::-1]
+        feature_list_imp = features_list[index]
+
+        for f in range(index.shape[0]):
+            print("%d. feature %d (%s)" % (f + 1, index[f], feature_list_imp[index[f]]))
+        print(selector.support_)
+        print(selector.ranking_)
