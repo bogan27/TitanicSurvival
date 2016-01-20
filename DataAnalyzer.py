@@ -72,9 +72,33 @@ class DataAnalyzer:
 ##############################Build Feature Importance Tools#################################       
 
 #################################1##########################################
-   def univariateFeatureselection(self, data, scoringfunction, nooffeatures, response):
-         X_new = SelectKBest(scoringfunction, k=nooffeatures).fit_transform(data, response)
-         return X_new
+    def univariateFeatureselection(self, data, scoringfunction, nooffeatures):
+          """
+        Univariate feature selection works by selecting the best features based on univariate
+        statistical tests. It can be seen as a preprocessing step to an estimator.
+
+        Parameters
+        ----------
+        data : DataFrame
+            Input data, for which categorical variables should be converted
+            response should be in 0 column, predictors in additional
+        scoring function : object
+            For regression: f_regression
+            For classification: chi2 or f_classif 
+            returns the univariate pvalue
+        nooffeatures : Integer
+            Selects the best specified number of features from predictors 
+        
+        Returns
+        -------
+        out : List
+            Returns list of best predictors
+          
+        """
+        predictors = data.values[:, 1::]
+        response = data.values[:, 0]
+        X_new = SelectKBest(scoringfunction, k=nooffeatures).fit_transform(predictors, response)
+        return X_new
     
 #################################2##########################################
     #Looking at Feature Importance using Entropy and Information Gain 
@@ -88,6 +112,7 @@ class DataAnalyzer:
         ----------
         data : DataFrame
             Input data, for which categorical variables should be converted
+            response should be in 0 column, predictors in additional
         fi_threshold : Integer
             The number you want to set as the % threshold for features
         
@@ -146,13 +171,16 @@ class DataAnalyzer:
         """
         Uses Recurrcise Feature Elimination to determine the write number of 
         features before adding additional leads to overfitting &
-        uses cross validation to determine the features of most importance
-        fitting a SVM with a linear kernel
+         It works by recursively removing attributes and building a model on those 
+         attributes that remain. It uses the model accuracy to identify 
+         which attributes (and combination of attributes) contribute the 
+         most to predicting the target attribute.
 
         Parameters
         ----------
         data : DataFrame
             Input data, for which categorical variables should be converted
+            response should be in 0 column, predictors in additional
 
         Returns
         -------
@@ -196,6 +224,14 @@ class DataAnalyzer:
         print(selector.support_)
         print(selector.ranking_)      
  
+ 
+ #####################################4#######################################
+     def interactionV(self,data):
+         from minepy import MINE
+         m = MINE()
+         m.compute_score(data, x**2)
+         print m.mic()
+
 ##########################################################################################       
 ## A class for performing linear regression
 class RegressionTool:
