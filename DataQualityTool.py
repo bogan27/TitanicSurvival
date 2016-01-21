@@ -65,6 +65,53 @@ class DataQualityTool:
     def countBadValues(self, x):
         return x.isnull().sum()
         
+        def convertCatsToDummies(self, data, cols):
+        """
+        Converts specified catagorical variables into binary dummy variables,
+        then drops the categorical variables. 
+
+        Parameters
+        ----------
+        data : DataFrame
+            Input data, for which categorical variables should be converted
+        cols : List[str]
+            A list of column names to convert from categorical to dummy
+
+        Returns
+        -------
+        out : DataFrame
+            The original data frame but without any columns names in the ``cols``
+            argument, which are instead represented by the newly created dummy
+            variables. 
+
+        Example
+        -------
+        Suppose you have a DataFrame ``d`` that contains a column "Gender". You
+        could use this method to convert the Gender column to two new variables, 
+        gender_male and gender_female by calling:
+
+        >>> categoricalD = convertCatsToDummies(d, ['Gender'])
+        >>> categoricalD.columns
+        ['Gender_male', 'Gender_Female']
+          
+        """
+        if isinstance(data, pd.DataFrame) and isinstance(cols, list):
+            for col in cols:
+                dummies = pd.get_dummies(data[col])
+                dummyNames = []
+                for d in dummies:
+                    name = col + "_" + d
+                    dummyNames.append(name)
+                dummies.columns = dummyNames
+                data = pd.concat([data, dummies], axis = 1)
+                data = data.drop(col, 1)
+            return data
+        else:
+            print( "" )
+            print("ERROR! Invalid data types of arguments.")
+            print( "" )
+            
+        
     ## Removes variables with low variance, such as boolean variables that are
     ## the same more than the threshold % of the time
     ## Takes in a DataFrame, and an optional threshold

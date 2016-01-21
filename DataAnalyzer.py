@@ -62,13 +62,35 @@ class DataAnalyzer:
             regTool = RegressionTool(self.data, self.response)
             return regTool.analyzeLinReg()
             
-    ## Given a DataFrame, returns a list containing the names of all
-    ## variables determined to be nominal. A variable is considered nominal if
-    ## its values are strings, and if the ratio of unique values to total 
-    ## values falls below the threshold, which is 25% by default, but can be 
-    ## specified by an optional second argument. 
-    def getNameOfNoms(self, data, threshold=.25):
-        uniquePercentages = dqt.DataQualityTool(data).analyze().loc[['unique_percent'],]      
+    def getNameOfNoms(self, data: pd.DataFrame, 
+                      threshold: float = .25) -> list[str]:
+        """
+        Given a DataFrame, returns a list containing the names of all
+        variables determined to be nominal. A variable is considered nominal if
+        its values are strings, and if the ratio of unique values to total 
+        values falls below the threshold, which is 25% by default, but can be 
+        specified by an optional second argument. 
+        
+        Parameters
+        ----------
+        data : DataFrame
+            The DataFrame to analyze
+        threshold : float
+            Optional argument that defaults to 0.25.
+            Represents the maximum acceptable value for the ratio of unique
+            values to total values. If this ratio is too high, it is likely
+            the variable is not categorical/nominal, and would instead consist 
+            of arbitrary strings, such as a Name field. 
+            
+        Returns
+        -------
+        out : list[str]
+            Returns a list of the names of all variables determined to be 
+            categorical/nominal. If no variables are detrmined to be nominal, 
+            returns an empty list.
+        """
+        dqTool = dqt.DataQualityTool(data)
+        uniquePercentages = dqTool.analyze().loc[['unique_percent'],]      
         answer = []
         for column in data:
             curCol = data[column]
@@ -82,26 +104,28 @@ class DataAnalyzer:
             if isNominal:
                 answer.append(column)
         return answer
-                
-##############################Build Feature Importance Tools##################      
 
-#################################1##########################################
-    def univariateFeatureselection(self, data, scoringfunction, nooffeatures):
+##############################################################################
+##########       Feature Selection/Importance Tools         ##################
+##############################################################################
+
+    def univariateFeatureselection(self, data: pd.DataFrame, scoringfunction, 
+                                   numfeatures: int):
         """
-        Univariate feature selection works by selecting the best features based on univariate
-        statistical tests. It can be seen as a preprocessing step to an estimator.
+        Selects the best features based on univariate statistical tests.
+        It can be seen as a preprocessing step to an estimator.
 
         Parameters
         ----------
         data : DataFrame
             Input data, for which categorical variables should be converted
             response should be in 0 column, predictors in additional
-        scoring function : object
+        scoringfunction : object
             For regression: f_regression
             For classification: chi2 or f_classif 
             returns the univariate pvalue
-        nooffeatures : Integer
-            Selects the best specified number of features from predictors 
+        numfeatures : int
+            Max number of features that should be selected 
         
         Returns
         -------
@@ -111,13 +135,13 @@ class DataAnalyzer:
         """
         predictors = data.values[:, 1::]
         response = data.values[:, 0]
-        X_new = SelectKBest(scoringfunction, k=nooffeatures).fit_transform(predictors, response)
+        X_new = SelectKBest(scoringfunction, k=numfeatures)
+        X_new = X_new.fit_transform(predictors, response)
         return X_new
-    
-#################################2##########################################
+
     #Looking at Feature Importance using Entropy and Information Gain 
     #Given by Modelling with a RandomForest
-    def featureImportance(self, data, fi_threshold):
+    def featureImportance(self, data: pd.DataFrame, fi_threshold):
         """
         Models data with a Extra tree classifer and using information
         importance feature to help aid dimensionality reduction. 
@@ -125,16 +149,17 @@ class DataAnalyzer:
         Parameters
         ----------
         data : DataFrame
-            Input data, for which categorical variables should be converted
-            response should be in 0 column, predictors in additional
-        fi_threshold : Integer
-            The number you want to set as the % threshold for features
+            Input data, for which categorical variables should be converted to 
+            dummy variables (see DataQualityTool.convertCatsToDummies), and the 
+            response variable should be in 0 column.
+        fi_threshold : int
+            The top % of features to select
         
         Returns
         -------
-        out : Plot
-            A plot of the featues of most importance determined by the set 
-            threshold given and standard deviation tick marks
+        out : None
+            Displays a plot of the featues of most importance determined by the 
+            set threshold given and standard deviation tick marks
           
         """
         
@@ -358,52 +383,6 @@ class RegressionTool:
         metrics = pd.Series(["Coefficient", "MSE", "Variance Score"])
         resultsDF.index = metrics
         return resultsDF
-        
-    def convertCatsToDummies(self, data, cols):
-        """
-        Converts specified catagorical variables into binary dummy variables,
-        then drops the categorical variables. 
-
-        Parameters
-        ----------
-        data : DataFrame
-            Input data, for which categorical variables should be converted
-        cols : List[str]
-            A list of column names to convert from categorical to dummy
-
-        Returns
-        -------
-        out : DataFrame
-            The original data frame but without any columns names in the ``cols``
-            argument, which are instead represented by the newly created dummy
-            variables. 
-
-        Example
-        -------
-        Suppose you have a DataFrame ``d`` that contains a column "Gender". You
-        could use this method to convert the Gender column to two new variables, 
-        gender_male and gender_female by calling:
-
-        >>> categoricalD = convertCatsToDummies(d, ['Gender'])
-        >>> categoricalD.columns
-        ['Gender_male', 'Gender_Female']
-          
-        """
-        if isinstance(data, pd.DataFrame) and isinstance(cols, list):
-            for col in cols:
-                dummies = pd.get_dummies(data[col])
-                dummyNames = []
-                for d in dummies:
-                    name = col + "_" + d
-                    dummyNames.append(name)
-                dummies.columns = dummyNames
-                data = pd.concat([data, dummies], axis = 1)
-                data = data.drop(col, 1)
-            return data
-        else:
-            print( "" )
-            print("ERROR! Invalid data types of arguments.")
-            print( "" )
             
     ## Builds a regression model based on the given data set, which must be a 
     ## Pandas DataFrame, and the column name of the dependent variable

@@ -158,8 +158,9 @@ class TitanicSurivalModel:
     ## DataFrame for each value in the column, then the column will be removed.
     def nominaltoDummy(self, data):
         nominals  = self.getNominalNames(data)
-        rt = da.RegressionTool(data, 0)
-        return rt.convertCatsToDummies(data, nominals)
+        return self.dqTool.convertCatsToDummies(data, nominals)
+#        rt = da.RegressionTool(data, 0)
+#        return rt.convertCatsToDummies(data, nominals)
         
     ## Completely preps the data for building models
     ## Takes one argument, a Pandas DataFrame
