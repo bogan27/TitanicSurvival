@@ -317,8 +317,6 @@ class RegressionTool:
             print( 'WARNING! DATA REJECTED!')
             print( 'Argument for data must be a pandas DataFrame')
         
-    ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
-    ## score for each feature
     def analyzeLinReg(self, data=None, response=None):
         """ 
         Provides statistics on the variables of this instances data.
@@ -331,7 +329,15 @@ class RegressionTool:
         data : DataFrame
             Default value is self.data, but an optional DataFrame can be passed
             to be analyzed instead, without having any affect on self.data. 
-        TODO: Finish this document
+        response : int
+            Optional argument for the index of the response variable. Defaults 
+            to the value of self.response.
+            
+        Returns
+        -------
+        out : DataFrame
+            Returns a Panda DataFrame showing the coefficient, MSE, and 
+            variance score for each feature
         """
         if data is None:
             data = self.data
