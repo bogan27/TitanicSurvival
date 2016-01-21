@@ -24,29 +24,43 @@ from sklearn.cross_validation import StratifiedKFold
 # user input
 class DataAnalyzer:
     
-    ## Instantiate the class
     def __init__(self):
         self.dataUrl = 'http://www-bcf.usc.edu/~gareth/ISL/Advertising.csv'
         self.index = 0
         self.response = 3
-
         self.data = pd.read_csv(self.dataUrl, index_col= self.index)
         
-    ## Set the data for analysis
-    def setData(self, data):
-        self.data = data
+    def setData(self, data: pd.DataFrame) -> None:
+        """ Set the data to be used for this instance"""
+        if isinstance(pd.DataFrame, data):
+            self.data = data
     
-    ## Return the data currently being used by this tool
-    def getData(self):
-        return self.data
+    def getData(self) -> pd.DataFrame:
+        """ Get a copy of the data being used by this instance """
+        return self.data.copy()
       
-    ## Determine what type of analysis the user wants, instantiate an object 
-    ## that can perform that analysis, and execute it
-    def analyze(self, analysisType):
+    def analyze(self, analysisType : int = 1) -> pd.DataFrame:
+        """ 
+        Returns some descriptive statsitcs on this instance's data. The 
+        statistics that are returned depedn on the analysisType given. 
+        
+        Parameters
+        ----------
+        analysisType : int
+            A number corresponding to which type of analysis should be done. 
+            Options are:
+            1. Liner regression
+            
+        Returns
+        -------
+        out : pd.DataFrame
+            Returns a DataFrame representing various statistics for each
+            variable in a tabular format
+        """
         ## For linear regression
         if analysisType == "lr":
             regTool = RegressionTool(self.data, self.response)
-            print regTool.analyzeLinReg()
+            return regTool.analyzeLinReg()
             
     ## Given a DataFrame, returns a list containing the names of all
     ## variables determined to be nominal. A variable is considered nominal if
@@ -69,11 +83,11 @@ class DataAnalyzer:
                 answer.append(column)
         return answer
                 
-##############################Build Feature Importance Tools#################################       
+##############################Build Feature Importance Tools##################      
 
 #################################1##########################################
     def univariateFeatureselection(self, data, scoringfunction, nooffeatures):
-          """
+        """
         Univariate feature selection works by selecting the best features based on univariate
         statistical tests. It can be seen as a preprocessing step to an estimator.
 
@@ -143,8 +157,8 @@ class DataAnalyzer:
         
            # Create a list of all the feature names above the importance threshold
         important_features = features_list[important_idx]
-        print "\n", important_features.shape[0], "Important features(>", fi_threshold, "% of max importance):\n", \
-            important_features
+        print ("\n", important_features.shape[0], "Important features(>", 
+               fi_threshold, "% of max importance)", important_features)
 
         ##get std for the graphing
         std = np.std([tree.feature_importances_ for tree in forest.estimators_],
@@ -222,15 +236,17 @@ class DataAnalyzer:
         for f in range(index.shape[0]):
             print("%d. feature %d (%s)" % (f + 1, index[f], feature_list_imp[index[f]]))
         print(selector.support_)
-        print(selector.ranking_)      
- 
- 
+        print(selector.ranking_)    
+
  #####################################4#######################################
-     def interactionV(self,data):
-         from minepy import MINE
-         m = MINE()
-         m.compute_score(data, x**2)
-         print m.mic()
+    def interactionV(self, data):
+        from minepy import MINE
+        m = MINE()
+        m.compute_score(data, x**2)
+        print(m.mic())
+ 
+ 
+
 
 ##########################################################################################       
 ## A class for performing linear regression
@@ -263,7 +279,8 @@ class RegressionTool:
         Parameters
         ----------
         data : DataFrame
-            The default set of data to be used for analysis in this tool's methods
+            The default set of data to be used for analysis in this tool's 
+            methods
             
         Returns
         -------
@@ -272,8 +289,8 @@ class RegressionTool:
         if isinstance(data, pd.DataFrame):
             self.data = data
         else:
-            print 'WARNING! DATA REJECTED!'
-            print 'Argument for data must be a pandas DataFrame'
+            print( 'WARNING! DATA REJECTED!')
+            print( 'Argument for data must be a pandas DataFrame')
         
     ## Returns a Panda DataFrame showing the coefficient, MSE, and variance 
     ## score for each feature
@@ -331,12 +348,12 @@ class RegressionTool:
                 ## Log the metrics in the response df
                 colName = list(data.columns.values)[currentCol]
                 resultsDF[colName] = pd.Series([coef, mse, variance])
-                print "Done analyzing " + colName
+                print( "Done analyzing " + colName)
                 
                 ## Increment the column
                 currentCol += 1
-                print ""
-                print ""
+                print("")
+                print( "" )
         
         metrics = pd.Series(["Coefficient", "MSE", "Variance Score"])
         resultsDF.index = metrics
@@ -384,15 +401,15 @@ class RegressionTool:
                 data = data.drop(col, 1)
             return data
         else:
-            print ""
-            print "ERROR! Invalid data types of arguments."
-            print ""
+            print( "" )
+            print("ERROR! Invalid data types of arguments.")
+            print( "" )
             
     ## Builds a regression model based on the given data set, which must be a 
     ## Pandas DataFrame, and the column name of the dependent variable
     def buildModel(self, data, depenVar):
         if not isinstance(data, pd.DataFrame) or not isinstance(depenVar, str):
-            print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
+            print( '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n')
         else:
             data = data[np.isfinite(data[depenVar])]
             dependent = data[depenVar]
@@ -412,7 +429,7 @@ class RegressionTool:
     ##      6 - Poisson
     def predictNullsGLM(self, d, depenVar, familyCode=3, link=None, roundTo=2):
         if not isinstance(d, pd.DataFrame) or not isinstance(depenVar, str):
-            print '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n'
+            print( '\n' + "ERROR! Wrong Data Types! Takes a DataFrame and a string." + '\n')
         else:
             distFams = [sm.families.Binomial(), sm.families.Gamma(),
                         sm.families.Gaussian(), sm.families.InverseGaussian(),

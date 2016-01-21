@@ -17,7 +17,7 @@ class DataQualityTool:
         if isinstance(data, pd.DataFrame):
             self.data = data
         else:
-            print '\n' + "ERROR! Data must be a Pandas DataFrame!" + '\n'
+            print( '\n' + "ERROR! Data must be a Pandas DataFrame!" + '\n' )
             
     ## Return the data currently being used by this tool
     def getData(self):
